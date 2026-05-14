@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.chessclub.views.Cadastrar
+import com.example.chessclub.views.EditarPerfil
 import com.example.chessclub.views.Login
 import com.example.chessclub.views.MenuPrincipal
 
@@ -22,14 +23,19 @@ class MainActivity : ComponentActivity() {
             NavHost(navController, "main/{user}") {
                 composable("main/{user}") { entry ->
                     entry.arguments?.getString("user")?.let { user ->
-                        MenuPrincipal(user = user)
+                        MenuPrincipal(
+                            user = user,
+                            onEditarPerfilClick = {
+                                navController.navigate("EditarPerfil/$user/ ")
+                            }
+                        )
                     } ?: LaunchedEffect(null) {
                         navController.navigate("Login")
                     }
                 }
                 composable("Login") {
                     Login(
-                        onEnterClicked = {user ->
+                        onEnterClicked = { user ->
                             navController.navigate("main/${user.username}")
                         },
                         onCadastroClicked = {
@@ -40,6 +46,22 @@ class MainActivity : ComponentActivity() {
                 composable("Cadastro") {
                     Cadastrar(
                         onCadastrarClicked = {
+                            navController.popBackStack()
+                        }
+                    )
+                }
+                composable("EditarPerfil/{username}/{email}") { entry ->
+                    val username = entry.arguments?.getString("username") ?: ""
+                    val email = entry.arguments?.getString("email") ?: ""
+                    EditarPerfil(
+                        username = username,
+                        email = email,
+                        onSalvarClicked = { user ->
+                            navController.navigate("main/${user.username}") {
+                                popUpTo("main/{user}") { inclusive = true }
+                            }
+                        },
+                        onVoltarClicked = {
                             navController.popBackStack()
                         }
                     )

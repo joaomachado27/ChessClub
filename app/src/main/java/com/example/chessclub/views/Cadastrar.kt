@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
@@ -21,6 +22,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -33,7 +35,7 @@ import com.example.chessclub.ui.theme.Swamp
 import com.example.chessclub.ui.theme.Typography
 
 @Composable
-fun Cadastrar(onCadastrarClicked: () -> Unit){
+fun Cadastrar(onCadastrarClicked: () -> Unit) {
 
     var username by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
@@ -41,21 +43,25 @@ fun Cadastrar(onCadastrarClicked: () -> Unit){
     var confirmPassword by rememberSaveable { mutableStateOf("") }
 
     Column(
-        Modifier.fillMaxSize().background(brush = Brush.linearGradient(
-            listOf(
-                Cinza,
-                Cinza,
-                Alligator,
-                Cinza,
-                Cinza,
-                Cinza,
-                Cinza,
-                Alligator,
-                Cinza,
-                Cinza,
-                Cinza
-            )
-        )),
+        Modifier
+            .fillMaxSize()
+            .background(
+                brush = Brush.linearGradient(
+                    listOf(
+                        Cinza,
+                        Cinza,
+                        Alligator,
+                        Cinza,
+                        Cinza,
+                        Cinza,
+                        Cinza,
+                        Alligator,
+                        Cinza,
+                        Cinza,
+                        Cinza
+                    )
+                )
+            ),
         Arrangement.Center,
         Alignment.CenterHorizontally
     )
@@ -81,12 +87,19 @@ fun Cadastrar(onCadastrarClicked: () -> Unit){
                 username = it
             },
             label = {
-                Text("Nome de usuário", color = Salt, fontFamily = FontFamily.Serif, fontSize = 16.sp)
+                Text(
+                    "Nome de usuário",
+                    color = Salt,
+                    fontFamily = FontFamily.Serif,
+                    fontSize = 16.sp
+                )
             },
             textStyle = TextStyle(Salt, 16.sp),
             maxLines = 1,
             colors = CorTextField,
-            modifier = Modifier.padding(vertical = 5.dp).fillMaxWidth(0.75f),
+            modifier = Modifier
+                .padding(vertical = 5.dp)
+                .fillMaxWidth(0.75f),
         )
         OutlinedTextField(
             value = email,
@@ -99,7 +112,10 @@ fun Cadastrar(onCadastrarClicked: () -> Unit){
             textStyle = TextStyle(Salt, 16.sp),
             maxLines = 1,
             colors = CorTextField,
-            modifier = Modifier.padding(vertical = 5.dp).fillMaxWidth(0.75f),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            modifier = Modifier
+                .padding(vertical = 5.dp)
+                .fillMaxWidth(0.75f),
         )
         OutlinedTextField(
             value = password,
@@ -113,7 +129,10 @@ fun Cadastrar(onCadastrarClicked: () -> Unit){
             visualTransformation = PasswordVisualTransformation(),
             maxLines = 1,
             colors = CorTextField,
-            modifier = Modifier.padding(vertical = 5.dp).fillMaxWidth(0.75f)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+            modifier = Modifier
+                .padding(vertical = 5.dp)
+                .fillMaxWidth(0.75f)
         )
         OutlinedTextField(
             value = confirmPassword,
@@ -121,15 +140,23 @@ fun Cadastrar(onCadastrarClicked: () -> Unit){
                 confirmPassword = it
             },
             label = {
-                Text("Confirmar senha", color = Salt, fontFamily = FontFamily.Serif, fontSize = 16.sp)
+                Text(
+                    "Confirmar senha",
+                    color = Salt,
+                    fontFamily = FontFamily.Serif,
+                    fontSize = 16.sp
+                )
             },
             textStyle = TextStyle(Salt, 16.sp),
             maxLines = 1,
             colors = CorTextField,
-            modifier = Modifier.padding(vertical = 5.dp).fillMaxWidth(0.75f),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+            modifier = Modifier
+                .padding(vertical = 5.dp)
+                .fillMaxWidth(0.75f),
         )
         Button(
-            onClick = {onCadastrarClicked()},
+            onClick = { onCadastrarClicked() },
             colors = ButtonDefaults.buttonColors(
                 containerColor = Swamp
             ),
@@ -148,6 +175,6 @@ fun Cadastrar(onCadastrarClicked: () -> Unit){
 
 @Preview
 @Composable
-private fun CadastrarPreview(){
+private fun CadastrarPreview() {
     Cadastrar(onCadastrarClicked = {})
 }
