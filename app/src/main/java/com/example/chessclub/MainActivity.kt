@@ -8,10 +8,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.chessclub.views.AlterarSenha
 import com.example.chessclub.views.Cadastrar
 import com.example.chessclub.views.EditarPerfil
 import com.example.chessclub.views.Login
 import com.example.chessclub.views.MenuPrincipal
+import com.example.chessclub.views.SobreNos
 
 
 class MainActivity : ComponentActivity() {
@@ -27,6 +29,9 @@ class MainActivity : ComponentActivity() {
                             user = user,
                             onEditarPerfilClick = {
                                 navController.navigate("EditarPerfil/$user/ ")
+                            },
+                            onSobreNosClick = {
+                                navController.navigate("SobreNos")
                             }
                         )
                     } ?: LaunchedEffect(null) {
@@ -61,6 +66,30 @@ class MainActivity : ComponentActivity() {
                                 popUpTo("main/{user}") { inclusive = true }
                             }
                         },
+                        onVoltarClicked = {
+                            navController.popBackStack()
+                        },
+                        onAlterarClicked = {
+                            navController.navigate("AlterarSenha/$username")
+                        }
+                    )
+                }
+                composable("AlterarSenha/{username}") { entry ->
+                    val username = entry.arguments?.getString("username") ?: ""
+                    AlterarSenha(
+                        username = username,
+                        onAlterarClicked = { user ->
+                            navController.navigate("main/${user.username}") {
+                                popUpTo("main/{user}") { inclusive = true }
+                            }
+                        },
+                        onVoltarClicked = {
+                            navController.popBackStack()
+                        }
+                    )
+                }
+                composable("SobreNos") {
+                    SobreNos(
                         onVoltarClicked = {
                             navController.popBackStack()
                         }

@@ -1,6 +1,7 @@
 package com.example.chessclub.views
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -48,7 +49,8 @@ fun EditarPerfil(
     username: String,
     email: String,
     onSalvarClicked: (User) -> Unit,
-    onVoltarClicked: () -> Unit
+    onVoltarClicked: () -> Unit,
+    onAlterarClicked: () -> Unit
 ) {
 
     var usernameEdited by remember { mutableStateOf(username) }
@@ -113,7 +115,7 @@ fun EditarPerfil(
                 colors = CorTextField,
                 modifier = Modifier
                     .padding(vertical = 5.dp)
-                    .fillMaxWidth(0.75f),
+                    .fillMaxWidth(0.75f)
             )
 
             OutlinedTextField(
@@ -130,6 +132,17 @@ fun EditarPerfil(
                 modifier = Modifier
                     .padding(vertical = 5.dp)
                     .fillMaxWidth(0.75f),
+            )
+
+            Spacer(Modifier.height(12.dp))
+
+            Text(
+                text = "Alterar Senha",
+                fontSize = 16.sp,
+                fontFamily = FontFamily.SansSerif,
+                fontWeight = FontWeight.SemiBold,
+                style = Typography.bodyLarge,
+                modifier = Modifier.clickable{ onAlterarClicked() }
             )
 
             Column(
@@ -160,6 +173,7 @@ fun EditarPerfil(
                         onPasswordChange = { password = it },
                         onConfirm = {
                             onSalvarClicked(User(usernameEdited, password, emailEdited))
+                            isDisplayDialog = false
                         },
                         onDismiss = { isDisplayDialog = false }
                     )
@@ -268,5 +282,11 @@ private fun DialogSenha(
 @Preview
 @Composable
 private fun EditarPerfilPreview() {
-    EditarPerfil(username = "Endermata7", email = "email@teste.com", onSalvarClicked = {}, onVoltarClicked = {})
+    EditarPerfil(
+        username = "Endermata7",
+        email = "email@teste.com",
+        onSalvarClicked = {},
+        onVoltarClicked = {},
+        onAlterarClicked = {}
+    )
 }

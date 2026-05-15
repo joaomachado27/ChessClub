@@ -3,8 +3,10 @@ package com.example.chessclub.views
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -14,7 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,12 +38,14 @@ import com.example.chessclub.ui.theme.Swamp
 import com.example.chessclub.ui.theme.Typography
 
 @Composable
-fun Cadastrar(onCadastrarClicked: (User) -> Unit) {
-
-    var username by rememberSaveable { mutableStateOf("") }
-    var email by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
-    var confirmPassword by rememberSaveable { mutableStateOf("") }
+fun AlterarSenha(
+    username: String,
+    onAlterarClicked: (User) -> Unit,
+    onVoltarClicked: () -> Unit
+) {
+    var senhaAtual by remember { mutableStateOf("") }
+    var novaSenha by remember { mutableStateOf("") }
+    var confirmarNovaSenha by remember { mutableStateOf("") }
 
     Column(
         Modifier
@@ -63,33 +67,28 @@ fun Cadastrar(onCadastrarClicked: (User) -> Unit) {
                     )
                 )
             ),
-        Arrangement.Center,
+        Arrangement.Top,
         Alignment.CenterHorizontally
-    )
-    {
+    ) {
+        Spacer(Modifier.height(192.dp))
+
         Text(
-            text = "Chess Club",
-            fontSize = 30.sp,
-            fontWeight = FontWeight.SemiBold,
-            style = Typography.bodyLarge,
-            modifier = Modifier.padding(bottom = 100.dp, top = 0.dp)
-        )
-        Text(
-            text = "Cadastro",
+            text = "Alterar Senha para $username",
             fontSize = 22.sp,
             fontFamily = FontFamily.SansSerif,
             fontWeight = FontWeight.SemiBold,
             style = Typography.bodyLarge,
-            modifier = Modifier.padding(top = 0.dp, bottom = 10.dp, end = 200.dp)
+            modifier = Modifier.padding(horizontal = 48.dp)
         )
+
+        Spacer(Modifier.height(8.dp))
+
         OutlinedTextField(
-            value = username,
-            onValueChange = {
-                username = it
-            },
+            value = senhaAtual,
+            onValueChange = { senhaAtual = it },
             label = {
                 Text(
-                    "Nome de usuário",
+                    "Senha Atual",
                     color = Salt,
                     fontFamily = FontFamily.Serif,
                     fontSize = 16.sp
@@ -98,91 +97,100 @@ fun Cadastrar(onCadastrarClicked: (User) -> Unit) {
             textStyle = TextStyle(Salt, 16.sp),
             maxLines = 1,
             colors = CorTextField,
-            modifier = Modifier
-                .padding(vertical = 5.dp)
-                .fillMaxWidth(0.75f),
-        )
-        OutlinedTextField(
-            value = email,
-            onValueChange = {
-                email = it
-            },
-            label = {
-                Text("Email", color = Salt, fontFamily = FontFamily.Serif, fontSize = 16.sp)
-            },
-            textStyle = TextStyle(Salt, 16.sp),
-            maxLines = 1,
-            colors = CorTextField,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            modifier = Modifier
-                .padding(vertical = 5.dp)
-                .fillMaxWidth(0.75f),
-        )
-        OutlinedTextField(
-            value = password,
-            onValueChange = {
-                password = it
-            },
-            label = {
-                Text("Senha", color = Salt, fontFamily = FontFamily.Serif, fontSize = 16.sp)
-            },
-            textStyle = TextStyle(Salt, 16.sp),
             visualTransformation = PasswordVisualTransformation(),
-            maxLines = 1,
-            colors = CorTextField,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
             modifier = Modifier
                 .padding(vertical = 5.dp)
                 .fillMaxWidth(0.75f)
         )
+
         OutlinedTextField(
-            value = confirmPassword,
-            onValueChange = {
-                confirmPassword = it
-            },
+            value = novaSenha,
+            onValueChange = { novaSenha = it },
             label = {
                 Text(
-                    "Confirmar senha",
+                    "Nova Senha",
                     color = Salt,
                     fontFamily = FontFamily.Serif,
                     fontSize = 16.sp
                 )
             },
             textStyle = TextStyle(Salt, 16.sp),
-            visualTransformation = PasswordVisualTransformation(),
             maxLines = 1,
             colors = CorTextField,
+            visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
             modifier = Modifier
                 .padding(vertical = 5.dp)
-                .fillMaxWidth(0.75f),
+                .fillMaxWidth(0.75f)
         )
+
+        OutlinedTextField(
+            value = confirmarNovaSenha,
+            onValueChange = { confirmarNovaSenha = it },
+            label = {
+                Text(
+                    "Confirmar Nova Senha",
+                    color = Salt,
+                    fontFamily = FontFamily.Serif,
+                    fontSize = 16.sp
+                )
+            },
+            textStyle = TextStyle(Salt, 16.sp),
+            maxLines = 1,
+            colors = CorTextField,
+            visualTransformation = PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+            modifier = Modifier
+                .padding(vertical = 5.dp)
+                .fillMaxWidth(0.75f)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         Button(
-            onClick = { onCadastrarClicked(
-                User(username, password, email)
-            ) },
-            enabled = username.isNotEmpty() &&
-                      email.isNotEmpty() &&
-                      password.isNotEmpty() &&
-                      password == confirmPassword,
+            onClick = {
+                if (novaSenha == confirmarNovaSenha && novaSenha.isNotEmpty()) {
+                    onAlterarClicked(User(username, novaSenha))
+                }
+            },
+            modifier = Modifier.fillMaxWidth(0.75f),
+            enabled = senhaAtual.isNotEmpty() && novaSenha.isNotEmpty() && novaSenha == confirmarNovaSenha,
             colors = ButtonDefaults.buttonColors(
-                containerColor = Swamp
-            ),
-            modifier = Modifier.padding(vertical = 20.dp)
+                containerColor = Alligator
+            )
         ) {
             Text(
-                text = "Cadastrar",
+                text = "Confirmar Alteração",
                 fontSize = 20.sp,
                 style = Typography.bodyLarge
             )
         }
 
+        Spacer(Modifier.height(10.dp))
 
+        Button(
+            onClick = { onVoltarClicked() },
+            modifier = Modifier.fillMaxWidth(0.75f),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Swamp
+            )
+        ) {
+            Text(
+                text = "Voltar",
+                fontSize = 20.sp,
+                style = Typography.bodyLarge
+            )
+        }
     }
 }
 
 @Preview
 @Composable
-private fun CadastrarPreview() {
-    Cadastrar(onCadastrarClicked = {})
+fun AlterarSenhaPreview() {
+    AlterarSenha(
+        username = "Endermata7",
+        onAlterarClicked = {},
+        onVoltarClicked = {}
+    )
 }

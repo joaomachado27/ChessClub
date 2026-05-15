@@ -31,7 +31,8 @@ import com.example.chessclub.ui.theme.Typography
 @Composable
 fun MenuPrincipal(
     user: String,
-    onEditarPerfilClick: () -> Unit = {}
+    onEditarPerfilClick: () -> Unit = {},
+    onSobreNosClick: () -> Unit = {}
 ) {
 
     Column(
@@ -115,7 +116,8 @@ fun MenuPrincipal(
             Text(
                 text = "Sobre nós",
                 fontSize = 20.sp,
-                style = Typography.bodyLarge
+                style = Typography.bodyLarge,
+                modifier = Modifier.clickable{ onSobreNosClick() }
             )
         }
     }
