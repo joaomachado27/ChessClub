@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
@@ -50,6 +52,8 @@ fun AlterarSenha(
     var novaSenha by remember { mutableStateOf("") }
     var confirmarNovaSenha by remember { mutableStateOf("") }
 
+    val scrollState = rememberScrollState()
+
     LaunchedEffect(Unit) {
         viewModel.updateSuccess.collect { user ->
             onAlterarClicked(user)
@@ -75,7 +79,8 @@ fun AlterarSenha(
                         Cinza
                     )
                 )
-            ),
+            )
+            .verticalScroll(scrollState),
         Arrangement.Top,
         Alignment.CenterHorizontally
     ) {

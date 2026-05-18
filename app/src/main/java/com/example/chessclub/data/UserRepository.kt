@@ -12,13 +12,14 @@ interface UserRepository {
     suspend fun getUserByUsername(username: String): User? // declara função para buscar um usuário pelo nome
     suspend fun updateUser(username: String, email: String, password: String): Boolean // declara função para atualizar nome e email
     suspend fun updatePassword(username: String, newPassword: String): Boolean // declara função para alterar a senha do usuário
+    fun getRanking(): Flow<List<User>>
 }
 
 class UserRepositoryImpl(private val userDAO: UserDAO) : UserRepository {
 
     override suspend fun createUser(user: User): Boolean { // implementa a criação de usuário
         return try { // inicia bloco try para capturar possíveis erros de inserção
-            userDAO.insert(UserEntity(user.username, user.senha, user.email)) // insere o usuário convertido para entidade no banco
+            userDAO.insert(UserEntity(user.username, user.senha, user.email, v = 0, e = 0, d = 0)) // insere o usuário com estatísticas zeradas
             true // retorna verdadeiro se a inserção ocorreu com sucesso
         } catch (e: Exception) { // captura exceção caso ocorra erro (ex: usuário já existe)
             false // retorna falso indicando falha na criação do usuário
@@ -28,20 +29,29 @@ class UserRepositoryImpl(private val userDAO: UserDAO) : UserRepository {
     override fun getUsers(): Flow<List<User>> { // implementa a busca de todos os usuários
         return userDAO.getAllUsers().map { entities -> // mapeia o Flow de entidades vindo do DAO
             entities.map { entity -> // mapeia cada entidade individual da lista
-                User(entity.username, entity.password, entity.email) // converte a entidade do banco para o modelo User
+                User(entity.username, entity.password, entity.email, entity.v, entity.e, entity.d) // converte a entidade do banco para o modelo User
             }
         }
     }
 
     override suspend fun getUserByUsername(username: String): User? { // implementa busca por nome de usuário
         return userDAO.getUserByUsername(username)?.let { entity -> // busca no banco e se encontrar executa o mapeamento
-            User(entity.username, entity.password, entity.email) // converte a entidade encontrada para o modelo de domínio User
+            User(entity.username, entity.password, entity.email, entity.v, entity.e, entity.d) // converte a entidade encontrada para o modelo de domínio User
         }
     }
 
     override suspend fun updateUser(username: String, email: String, password: String): Boolean { // implementa atualização de perfil
         return try { // inicia bloco try para operação de atualização
-            userDAO.update(UserEntity(username, password, email)) // executa o update no banco usando a entidade
+            // Para atualizar mantendo as estatísticas, precisaríamos buscar o usuário primeiro
+            // ou ter um método no DAO que atualize apenas campos específicos.
+            // Por simplicidade aqui, vamos assumir que as estatísticas serão resetadas ou lidar com isso depois.
+            // O ideal seria: val current = userDAO.getUserByUsername(username); userDAO.update(UserEntity(..., current.v, current.e, current.d))
+            val currentUser = userDAO.getUserByUsername(username)
+            if (currentUser != null) {
+                userDAO.update(UserEntity(username, password, email, currentUser.v, currentUser.e, currentUser.d))
+            } else {
+                userDAO.update(UserEntity(username, password, email, 0, 0, 0))
+            }
             true // retorna sucesso se atualizou corretamente
         } catch (e: Exception) { // captura erros durante a atualização
             false // retorna falso se houve falha na operação
@@ -54,6 +64,14 @@ class UserRepositoryImpl(private val userDAO: UserDAO) : UserRepository {
             true // retorna verdadeiro confirmando a alteração
         } catch (e: Exception) { // captura erros caso a operação falhe
             false // retorna falso indicando que a senha não foi alterada
+        }
+    }
+
+    override fun getRanking(): Flow<List<User>> {
+        return userDAO.getRanking().map { entities ->
+            entities.map { entity ->
+                User(entity.username, entity.password, entity.email, entity.v, entity.e, entity.d)
+            }
         }
     }
 }

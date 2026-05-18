@@ -6,13 +6,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -20,9 +22,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,44 +43,41 @@ import com.example.chessclub.viewmodel.LoginViewModel
 
 @Composable
 fun Login(
-    viewModel: LoginViewModel,
     onEnterClicked: (User) -> Unit,
-    onCadastroClicked: () -> Unit
-) {
+    onCadastroClicked: () -> Unit,
+    viewModel: LoginViewModel? = null
+){
 
     var username by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
 
-    LaunchedEffect(Unit) {
-        viewModel.loginSuccess.collect { user ->
-            if (user != null) onEnterClicked(user)
-        }
-    }
+    val scrollState = rememberScrollState()
+    val focusManager = LocalFocusManager.current
 
     Column(
         Modifier
             .fillMaxSize()
-            .background(
-                brush = Brush.linearGradient(
-                    listOf(
-                        Cinza,
-                        Cinza,
-                        Alligator,
-                        Cinza,
-                        Cinza,
-                        Cinza,
-                        Cinza,
-                        Alligator,
-                        Cinza,
-                        Cinza,
-                        Cinza
-                    )
+            .background(brush = Brush.linearGradient(
+                listOf(
+                    Cinza,
+                    Cinza,
+                    Alligator,
+                    Cinza,
+                    Cinza,
+                    Cinza,
+                    Cinza,
+                    Alligator,
+                    Cinza,
+                    Cinza,
+                    Cinza
                 )
-            ),
+            ))
+            .verticalScroll(scrollState),
         Arrangement.Center,
         Alignment.CenterHorizontally
     )
     {
+        
         Text(
             text = "Chess Club",
             fontSize = 30.sp,
@@ -98,19 +99,15 @@ fun Login(
                 username = it
             },
             label = {
-                Text(
-                    "Nome de usuário",
-                    color = Salt,
-                    fontFamily = FontFamily.Serif,
-                    fontSize = 16.sp
-                )
+                Text("Nome de usuário", color = Salt, fontFamily = FontFamily.Serif, fontSize = 16.sp)
             },
             textStyle = TextStyle(Salt, 16.sp),
             maxLines = 1,
             colors = CorTextField,
-            modifier = Modifier
-                .padding(vertical = 5.dp)
-                .fillMaxWidth(0.75f),
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Next
+            ),
+            modifier = Modifier.padding(vertical = 5.dp).fillMaxWidth(0.75f),
         )
         OutlinedTextField(
             value = password,
@@ -124,14 +121,20 @@ fun Login(
             visualTransformation = PasswordVisualTransformation(),
             maxLines = 1,
             colors = CorTextField,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-            modifier = Modifier
-                .padding(vertical = 5.dp)
-                .fillMaxWidth(0.75f)
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Password,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = { focusManager.clearFocus() }
+            ),
+            modifier = Modifier.padding(vertical = 5.dp).fillMaxWidth(0.75f)
         )
         Button(
             onClick = {
-                viewModel.login(username, password)
+                onEnterClicked(
+                    User(username, password)
+                )
             },
             colors = ButtonDefaults.buttonColors(
                 containerColor = Alligator
@@ -170,6 +173,6 @@ fun Login(
 
 @Preview
 @Composable
-private fun LoginPreview() {
-    // Preview desativado para evitar erro de falta de ViewModel
+private fun LoginPreview(){
+    Login(onEnterClicked = {}, onCadastroClicked ={})
 }

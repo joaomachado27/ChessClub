@@ -7,16 +7,20 @@ import androidx.activity.enableEdgeToEdge
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.chessclub.viewmodel.AdicionarPartidaViewModel
 import com.example.chessclub.viewmodel.AlterarSenhaViewModel
 import com.example.chessclub.viewmodel.CadastroViewModel
 import com.example.chessclub.viewmodel.EditarPerfilViewModel
 import com.example.chessclub.viewmodel.LoginViewModel
 import com.example.chessclub.viewmodel.MenuPrincipalViewModel
+import com.example.chessclub.viewmodel.RankingViewModel
+import com.example.chessclub.views.AdicionarPartida
 import com.example.chessclub.views.AlterarSenha
 import com.example.chessclub.views.Cadastrar
 import com.example.chessclub.views.EditarPerfil
 import com.example.chessclub.views.Login
 import com.example.chessclub.views.MenuPrincipal
+import com.example.chessclub.views.Ranking
 import com.example.chessclub.views.SobreNos
 import org.koin.androidx.compose.koinViewModel
 
@@ -39,7 +43,23 @@ class MainActivity : ComponentActivity() {
                         },
                         onSobreNosClick = {
                             navController.navigate("SobreNos")
+                        },
+                        onRankingClick = {
+                            navController.navigate("Ranking")
+                        },
+                        onAddPartidaClick = {
+                            navController.navigate("AdicionarPartida/$user")
                         }
+                    )
+                }
+                composable("AdicionarPartida/{user}") { entry ->
+                    val user = entry.arguments?.getString("user") ?: ""
+                    val viewModel: AdicionarPartidaViewModel = koinViewModel()
+                    AdicionarPartida(
+                        currentUser = user,
+                        viewModel = viewModel,
+                        onVoltar = { navController.popBackStack() },
+                        onSucesso = { navController.popBackStack() }
                     )
                 }
                 composable("Login") {
@@ -102,6 +122,15 @@ class MainActivity : ComponentActivity() {
                 }
                 composable("SobreNos") {
                     SobreNos(
+                        onVoltarClicked = {
+                            navController.popBackStack()
+                        }
+                    )
+                }
+                composable("Ranking") {
+                    val viewModel: RankingViewModel = koinViewModel()
+                    Ranking(
+                        viewModel = viewModel,
                         onVoltarClicked = {
                             navController.popBackStack()
                         }

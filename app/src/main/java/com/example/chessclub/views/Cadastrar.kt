@@ -5,8 +5,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
@@ -54,9 +57,15 @@ fun Cadastrar(
         }
     }
 
+    val scrollState = rememberScrollState()
+
     Column(
-        Modifier
+        modifier = Modifier
             .fillMaxSize()
+            .imePadding()
+
+
+
             .background(
                 brush = Brush.linearGradient(
                     listOf(
@@ -73,9 +82,11 @@ fun Cadastrar(
                         Cinza
                     )
                 )
-            ),
-        Arrangement.Center,
-        Alignment.CenterHorizontally
+            )
+            .verticalScroll(scrollState)
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     )
     {
         Text(

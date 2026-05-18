@@ -25,4 +25,7 @@ interface UserDAO {
 
     @Query("UPDATE users SET password = :newPassword WHERE username = :username") // consulta para atualizar apenas a senha
     suspend fun updatePassword(username: String, newPassword: String) // executa a atualização da senha de forma assíncrona
+
+    @Query("SELECT * FROM users ORDER BY v DESC")
+    fun getRanking(): Flow<List<UserEntity>>
 }
