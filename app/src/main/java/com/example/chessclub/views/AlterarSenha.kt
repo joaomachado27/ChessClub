@@ -14,6 +14,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,16 +37,24 @@ import com.example.chessclub.ui.theme.CorTextField
 import com.example.chessclub.ui.theme.Salt
 import com.example.chessclub.ui.theme.Swamp
 import com.example.chessclub.ui.theme.Typography
+import com.example.chessclub.viewmodel.AlterarSenhaViewModel
 
 @Composable
 fun AlterarSenha(
     username: String,
+    viewModel: AlterarSenhaViewModel,
     onAlterarClicked: (User) -> Unit,
     onVoltarClicked: () -> Unit
 ) {
     var senhaAtual by remember { mutableStateOf("") }
     var novaSenha by remember { mutableStateOf("") }
     var confirmarNovaSenha by remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        viewModel.updateSuccess.collect { user ->
+            onAlterarClicked(user)
+        }
+    }
 
     Column(
         Modifier
@@ -151,7 +160,7 @@ fun AlterarSenha(
         Button(
             onClick = {
                 if (novaSenha == confirmarNovaSenha && novaSenha.isNotEmpty()) {
-                    onAlterarClicked(User(username, novaSenha))
+                    viewModel.alterarSenha(username, senhaAtual, novaSenha)
                 }
             },
             modifier = Modifier.fillMaxWidth(0.75f),
@@ -188,9 +197,5 @@ fun AlterarSenha(
 @Preview
 @Composable
 fun AlterarSenhaPreview() {
-    AlterarSenha(
-        username = "Endermata7",
-        onAlterarClicked = {},
-        onVoltarClicked = {}
-    )
+    // Preview desativado
 }

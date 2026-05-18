@@ -12,6 +12,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -34,15 +35,23 @@ import com.example.chessclub.ui.theme.CorTextField
 import com.example.chessclub.ui.theme.Salt
 import com.example.chessclub.ui.theme.Swamp
 import com.example.chessclub.ui.theme.Typography
+import com.example.chessclub.viewmodel.LoginViewModel
 
 @Composable
 fun Login(
+    viewModel: LoginViewModel,
     onEnterClicked: (User) -> Unit,
     onCadastroClicked: () -> Unit
 ) {
 
     var username by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        viewModel.loginSuccess.collect { user ->
+            if (user != null) onEnterClicked(user)
+        }
+    }
 
     Column(
         Modifier
@@ -122,9 +131,7 @@ fun Login(
         )
         Button(
             onClick = {
-                onEnterClicked(
-                    User(username, password)
-                )
+                viewModel.login(username, password)
             },
             colors = ButtonDefaults.buttonColors(
                 containerColor = Alligator
@@ -164,5 +171,5 @@ fun Login(
 @Preview
 @Composable
 private fun LoginPreview() {
-    Login(onEnterClicked = {}, onCadastroClicked = {})
+    // Preview desativado para evitar erro de falta de ViewModel
 }

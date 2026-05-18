@@ -18,6 +18,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,12 +43,14 @@ import com.example.chessclub.ui.theme.CorTextField
 import com.example.chessclub.ui.theme.Salt
 import com.example.chessclub.ui.theme.Swamp
 import com.example.chessclub.ui.theme.Typography
+import com.example.chessclub.viewmodel.EditarPerfilViewModel
 
 
 @Composable
 fun EditarPerfil(
     username: String,
     email: String,
+    viewModel: EditarPerfilViewModel,
     onSalvarClicked: (User) -> Unit,
     onVoltarClicked: () -> Unit,
     onAlterarClicked: () -> Unit
@@ -57,6 +60,12 @@ fun EditarPerfil(
     var emailEdited by remember { mutableStateOf(email) }
     var password by remember { mutableStateOf("") }
     var isDisplayDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        viewModel.updateSuccess.collect { user ->
+            if (user != null) onSalvarClicked(user)
+        }
+    }
 
     Column(
         Modifier
@@ -172,7 +181,7 @@ fun EditarPerfil(
                         password = password,
                         onPasswordChange = { password = it },
                         onConfirm = {
-                            onSalvarClicked(User(usernameEdited, password, emailEdited))
+                            viewModel.salvarAlteracoes(usernameEdited, emailEdited, password)
                             isDisplayDialog = false
                         },
                         onDismiss = { isDisplayDialog = false }
@@ -282,11 +291,5 @@ private fun DialogSenha(
 @Preview
 @Composable
 private fun EditarPerfilPreview() {
-    EditarPerfil(
-        username = "Endermata7",
-        email = "email@teste.com",
-        onSalvarClicked = {},
-        onVoltarClicked = {},
-        onAlterarClicked = {}
-    )
+    // Preview desativado
 }

@@ -12,6 +12,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -34,14 +35,24 @@ import com.example.chessclub.ui.theme.CorTextField
 import com.example.chessclub.ui.theme.Salt
 import com.example.chessclub.ui.theme.Swamp
 import com.example.chessclub.ui.theme.Typography
+import com.example.chessclub.viewmodel.CadastroViewModel
 
 @Composable
-fun Cadastrar(onCadastrarClicked: (User) -> Unit) {
+fun Cadastrar(
+    viewModel: CadastroViewModel,
+    onCadastrarClicked: (User) -> Unit
+) {
 
     var username by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var confirmPassword by rememberSaveable { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        viewModel.cadastroSuccess.collect { success ->
+            if (success) onCadastrarClicked(User(username, password, email))
+        }
+    }
 
     Column(
         Modifier
@@ -158,9 +169,9 @@ fun Cadastrar(onCadastrarClicked: (User) -> Unit) {
                 .fillMaxWidth(0.75f),
         )
         Button(
-            onClick = { onCadastrarClicked(
-                User(username, password, email)
-            ) },
+            onClick = {
+                viewModel.cadastrar(User(username, password, email))
+            },
             enabled = username.isNotEmpty() &&
                       email.isNotEmpty() &&
                       password.isNotEmpty() &&
@@ -184,5 +195,5 @@ fun Cadastrar(onCadastrarClicked: (User) -> Unit) {
 @Preview
 @Composable
 private fun CadastrarPreview() {
-    Cadastrar(onCadastrarClicked = {})
+    // Preview desativado
 }

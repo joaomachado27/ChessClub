@@ -14,6 +14,8 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,13 +29,17 @@ import androidx.compose.ui.unit.sp
 import com.example.chessclub.ui.theme.Alligator
 import com.example.chessclub.ui.theme.Cinza
 import com.example.chessclub.ui.theme.Typography
+import com.example.chessclub.viewmodel.MenuPrincipalViewModel
 
 @Composable
 fun MenuPrincipal(
     user: String,
+    viewModel: MenuPrincipalViewModel,
     onEditarPerfilClick: () -> Unit = {},
     onSobreNosClick: () -> Unit = {}
 ) {
+
+    val users by viewModel.users.collectAsState()
 
     Column(
         Modifier
@@ -105,7 +111,7 @@ fun MenuPrincipal(
                 .padding(all = 24.dp),
             Arrangement.Top,
         ) {
-            Classificacao()
+            Classificacao(users.map { it.username })
         }
         Row(
             modifier = Modifier
@@ -135,14 +141,14 @@ private fun Classificacao(
         modifier = Modifier.padding(bottom = 4.dp)
     )
     LazyColumn {
-        itemsIndexed(items = qtde) { index, qtde ->
-            Card(n = qtde, i = index)
+        itemsIndexed(items = qtde) { index, name ->
+            Card(n = (index + 1).toString(), i = index, name = name)
         }
     }
 }
 
 @Composable
-private fun Card(n: String, i: Int) {
+private fun Card(n: String, i: Int, name: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -162,7 +168,7 @@ private fun Card(n: String, i: Int) {
                 style = Typography.bodyLarge
             )
             Text(
-                text = "\tTeste",
+                text = "\t$name",
                 fontSize = 18.sp,
                 style = Typography.bodyLarge
             )
@@ -173,5 +179,5 @@ private fun Card(n: String, i: Int) {
 @Preview
 @Composable
 private fun LoginPreview() {
-    MenuPrincipal("Endermata7")
+    // Preview desativado
 }
