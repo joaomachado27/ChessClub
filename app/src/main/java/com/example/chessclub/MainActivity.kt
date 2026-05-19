@@ -28,14 +28,15 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
             NavHost(navController, startDestination = "Login") {
-                composable("main/{user}") { entry ->
+                composable("main/{user}/{email}") { entry ->
                     val user = entry.arguments?.getString("user") ?: ""
+                    val email = entry.arguments?.getString("email") ?: ""
                     val viewModel: MenuPrincipalViewModel = koinViewModel()
                     MenuPrincipal(
                         user = user,
                         viewModel = viewModel,
                         onEditarPerfilClick = {
-                            navController.navigate("EditarPerfil/$user/ ")
+                            navController.navigate("EditarPerfil/$user/$email")
                         },
                         onSobreNosClick = {
                             navController.navigate("SobreNos")
@@ -47,7 +48,7 @@ class MainActivity : ComponentActivity() {
                     Login(
                         viewModel = viewModel,
                         onEnterClicked = { user ->
-                            navController.navigate("main/${user.username}")
+                            navController.navigate("main/${user.username}/${user.email}")
                         },
                         onCadastroClicked = {
                             navController.navigate("Cadastro")
@@ -72,8 +73,8 @@ class MainActivity : ComponentActivity() {
                         email = email,
                         viewModel = viewModel,
                         onSalvarClicked = { user ->
-                            navController.navigate("main/${user.username}") {
-                                popUpTo("main/{user}") { inclusive = true }
+                            navController.navigate("main/${user.username}/${user.email}") {
+                                popUpTo("main/{user}/{email}") { inclusive = true }
                             }
                         },
                         onVoltarClicked = {
@@ -91,8 +92,8 @@ class MainActivity : ComponentActivity() {
                         username = username,
                         viewModel = viewModel,
                         onAlterarClicked = { user ->
-                            navController.navigate("main/${user.username}") {
-                                popUpTo("main/{user}") { inclusive = true }
+                            navController.navigate("main/${user.username}/${user.email}") {
+                                popUpTo("main/{user}/{email}") { inclusive = true }
                             }
                         },
                         onVoltarClicked = {

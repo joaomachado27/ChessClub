@@ -49,10 +49,17 @@ fun AlterarSenha(
     var senhaAtual by remember { mutableStateOf("") }
     var novaSenha by remember { mutableStateOf("") }
     var confirmarNovaSenha by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf("") } // cria estado para a mensagem de erro atual da troca de senha
 
     LaunchedEffect(Unit) {
         viewModel.updateSuccess.collect { user ->
             onAlterarClicked(user)
+        }
+    }
+
+    LaunchedEffect(Unit) { // efeito para escutar os erros da ViewModel de alteração de senha
+        viewModel.error.collect { message -> // coleta cada nova mensagem emitida
+            errorMessage = message // atualiza o estado de erro visual na tela
         }
     }
 
@@ -92,13 +99,25 @@ fun AlterarSenha(
 
         Spacer(Modifier.height(8.dp))
 
+        if (errorMessage.isNotEmpty()) { // se houver erro exibe texto em destaque
+            Text( // componente de texto de erro
+                text = errorMessage, // define a mensagem de erro
+                color = androidx.compose.ui.graphics.Color.Red, // cor vermelha para alerta
+                fontSize = 14.sp, // tamanho reduzido da fonte
+                modifier = Modifier.padding(bottom = 8.dp) // margem inferior
+            )
+        }
+
         OutlinedTextField(
             value = senhaAtual,
-            onValueChange = { senhaAtual = it },
+            onValueChange = { 
+                senhaAtual = it 
+                errorMessage = "" // reseta erro ao começar a corrigir
+            },
             label = {
                 Text(
-                    "Senha Atual",
-                    color = Salt,
+                    "Senha Actual",
+                    color = if (errorMessage == "Senha atual incorreta") androidx.compose.ui.graphics.Color.Red else Salt, // destaca label se senha atual estiver errada
                     fontFamily = FontFamily.Serif,
                     fontSize = 16.sp
                 )
@@ -106,6 +125,7 @@ fun AlterarSenha(
             textStyle = TextStyle(Salt, 16.sp),
             maxLines = 1,
             colors = CorTextField,
+            isError = errorMessage == "Senha atual incorreta", // habilita o visual de erro no campo de senha atual
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
             modifier = Modifier
@@ -115,11 +135,14 @@ fun AlterarSenha(
 
         OutlinedTextField(
             value = novaSenha,
-            onValueChange = { novaSenha = it },
+            onValueChange = { 
+                novaSenha = it 
+                errorMessage = "" // reseta erro ao começar a corrigir
+            },
             label = {
                 Text(
                     "Nova Senha",
-                    color = Salt,
+                    color = if (errorMessage == "A senha nova não corresponde") androidx.compose.ui.graphics.Color.Red else Salt, // destaca label se senhas novas não baterem
                     fontFamily = FontFamily.Serif,
                     fontSize = 16.sp
                 )
@@ -127,6 +150,7 @@ fun AlterarSenha(
             textStyle = TextStyle(Salt, 16.sp),
             maxLines = 1,
             colors = CorTextField,
+            isError = errorMessage == "A senha nova não corresponde", // habilita erro visual no campo de nova senha
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
             modifier = Modifier
@@ -136,11 +160,14 @@ fun AlterarSenha(
 
         OutlinedTextField(
             value = confirmarNovaSenha,
-            onValueChange = { confirmarNovaSenha = it },
+            onValueChange = { 
+                confirmarNovaSenha = it 
+                errorMessage = "" // reseta erro ao começar a corrigir
+            },
             label = {
                 Text(
                     "Confirmar Nova Senha",
-                    color = Salt,
+                    color = if (errorMessage == "A senha nova não corresponde") androidx.compose.ui.graphics.Color.Red else Salt, // destaca label se senhas novas não baterem
                     fontFamily = FontFamily.Serif,
                     fontSize = 16.sp
                 )
@@ -148,6 +175,7 @@ fun AlterarSenha(
             textStyle = TextStyle(Salt, 16.sp),
             maxLines = 1,
             colors = CorTextField,
+            isError = errorMessage == "A senha nova não corresponde", // habilita erro visual no campo de confirmação
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
             modifier = Modifier
@@ -159,12 +187,10 @@ fun AlterarSenha(
 
         Button(
             onClick = {
-                if (novaSenha == confirmarNovaSenha && novaSenha.isNotEmpty()) {
-                    viewModel.alterarSenha(username, senhaAtual, novaSenha)
-                }
+                viewModel.alterarSenha(username, senhaAtual, novaSenha, confirmarNovaSenha) // chama a troca de senha passando a confirmação para a ViewModel
             },
             modifier = Modifier.fillMaxWidth(0.75f),
-            enabled = senhaAtual.isNotEmpty() && novaSenha.isNotEmpty() && novaSenha == confirmarNovaSenha,
+            enabled = senhaAtual.isNotEmpty() && novaSenha.isNotEmpty() && confirmarNovaSenha.isNotEmpty(), // valida campos preenchidos
             colors = ButtonDefaults.buttonColors(
                 containerColor = Alligator
             )

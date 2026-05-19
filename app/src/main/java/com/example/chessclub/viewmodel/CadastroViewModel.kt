@@ -16,19 +16,24 @@ class CadastroViewModel(private val repository: UserRepository) : ViewModel() {
     private val _error = MutableSharedFlow<String>() // cria fluxo privado para emitir erros durante o processo
     val error = _error.asSharedFlow() // expõe as mensagens de erro de forma imutável
 
-    fun cadastrar(user: User) { // função para realizar o cadastro de um novo usuário
+    fun cadastrar(user: User, confirmacao: String) { // função para realizar o cadastro validando os dados
         viewModelScope.launch { // abre uma corrotina para operações assíncronas no banco
+            if (user.senha != confirmacao) { // verifica se a senha e a confirmação são diferentes
+                _error.emit("As senhas não correspondem") // emite erro de divergência de senhas
+                return@launch // encerra a corrotina
+            }
+
             val existingUser = repository.getUserByUsername(user.username) // verifica se já existe usuário com esse nome
-            if (existingUser != null) { // se o usuário já estiver cadastrado
-                _error.emit("Usuário já cadastrado") // emite erro informando a duplicidade
+            if (existingUser != null) { // se o usuário já estiver cadastrado no banco
+                _error.emit("Nome de usuário já cadastrado") // emite erro informando a duplicidade de nome
                 return@launch // interrompe a execução da corrotina
             }
             
             val success = repository.createUser(user) // tenta criar o usuário no banco via repositório
-            if (success) { // se a criação for bem sucedida
-                _cadastroSuccess.emit(true) // emite sucesso no fluxo de cadastro
-            } else { // se ocorrer algum erro inesperado no banco
-                _error.emit("Erro ao realizar cadastro") // emite mensagem genérica de erro
+            if (success) { // se a criação for bem sucedida na persistência
+                _cadastroSuccess.emit(true) // emite sucesso no fluxo de cadastro para a View
+            } else { // se ocorrer algum erro inesperado durante a escrita no banco
+                _error.emit("Erro ao realizar cadastro") // emite mensagem genérica de falha
             }
         }
     }

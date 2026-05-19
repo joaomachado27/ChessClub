@@ -60,10 +60,17 @@ fun EditarPerfil(
     var emailEdited by remember { mutableStateOf(email) }
     var password by remember { mutableStateOf("") }
     var isDisplayDialog by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") } // cria estado para a mensagem de erro da edição
 
     LaunchedEffect(Unit) {
         viewModel.updateSuccess.collect { user ->
             if (user != null) onSalvarClicked(user)
+        }
+    }
+
+    LaunchedEffect(Unit) { // observa erros de validação de senha na edição
+        viewModel.error.collect { message -> // coleta mensagens de erro emitidas pela ViewModel
+            errorMessage = message // atualiza o estado de erro local para exibição no dialog
         }
     }
 
@@ -179,12 +186,19 @@ fun EditarPerfil(
                 if(isDisplayDialog){
                     DialogSenha(
                         password = password,
-                        onPasswordChange = { password = it },
+                        errorMessage = errorMessage, // passa a mensagem de erro para o dialog de senha
+                        onPasswordChange = { 
+                            password = it 
+                            errorMessage = "" // limpa o erro ao digitar nova senha
+                        },
                         onConfirm = {
                             viewModel.salvarAlteracoes(usernameEdited, emailEdited, password)
-                            isDisplayDialog = false
                         },
-                        onDismiss = { isDisplayDialog = false }
+                        onDismiss = { 
+                            isDisplayDialog = false 
+                            errorMessage = "" // reseta o erro ao fechar o dialog
+                            password = "" // limpa campo de senha
+                        }
                     )
                 }
 
@@ -210,6 +224,7 @@ fun EditarPerfil(
 @Composable
 private fun DialogSenha(
     password: String,
+    errorMessage: String, // recebe a mensagem de erro para exibição visual
     onPasswordChange: (String) -> Unit,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
@@ -217,7 +232,7 @@ private fun DialogSenha(
     Dialog(onDismissRequest = { onDismiss() }) {
         Column(
             modifier = Modifier
-                .size(width = 300.dp, height = 300.dp)
+                .size(width = 300.dp, height = 350.dp) // aumenta altura para acomodar erro
                 .clip(RoundedCornerShape(8))
                 .background(Cinza)
                 .padding(16.dp),
@@ -235,19 +250,35 @@ private fun DialogSenha(
                 fontSize = 22.sp,
                 style = Typography.bodyLarge
             )
-            Spacer(Modifier.size(24.dp))
+            
+            if (errorMessage.isNotEmpty()) { // verifica se há erro para exibir no dialog
+                Text( // exibe texto de erro do dialog
+                    text = errorMessage, // define a mensagem recebida
+                    color = androidx.compose.ui.graphics.Color.Red, // cor vermelha para erro
+                    fontSize = 14.sp, // tamanho da fonte reduzido
+                    modifier = Modifier.padding(top = 8.dp) // margem superior
+                )
+            }
+
+            Spacer(Modifier.size(16.dp))
             OutlinedTextField(
                 value = password,
                 onValueChange = {
                     onPasswordChange(it)
                 },
                 label = {
-                    Text("Senha", color = Salt, fontFamily = FontFamily.Serif, fontSize = 16.sp)
+                    Text(
+                        "Senha", 
+                        color = if (errorMessage == "Senha incorreta") androidx.compose.ui.graphics.Color.Red else Salt, // destaca label em vermelho em caso de erro
+                        fontFamily = FontFamily.Serif, 
+                        fontSize = 16.sp
+                    )
                 },
                 textStyle = TextStyle(Salt, 16.sp),
                 visualTransformation = PasswordVisualTransformation(),
                 maxLines = 1,
                 colors = CorTextField,
+                isError = errorMessage == "Senha incorreta", // habilita estado de erro visual no campo de senha
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                 modifier = Modifier
                     .padding(vertical = 5.dp)
@@ -267,7 +298,7 @@ private fun DialogSenha(
                 ) {
                     Text(
                         text = "Confirmar",
-                        fontSize = 20.sp,
+                        fontSize = 18.sp, // reduz fonte para caber melhor
                         style = Typography.bodyLarge
                     )
                 }
@@ -279,7 +310,7 @@ private fun DialogSenha(
                 ) {
                     Text(
                         text = "Voltar",
-                        fontSize = 20.sp,
+                        fontSize = 18.sp, // reduz fonte para caber melhor
                         style = Typography.bodyLarge
                     )
                 }

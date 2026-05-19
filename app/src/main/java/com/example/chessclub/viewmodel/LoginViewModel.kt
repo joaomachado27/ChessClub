@@ -19,10 +19,12 @@ class LoginViewModel(private val repository: UserRepository) : ViewModel() {
     fun login(username: String, password: String) { // função para processar a tentativa de login
         viewModelScope.launch { // inicia uma corrotina no escopo da ViewModel
             val user = repository.getUserByUsername(username) // busca o usuário no banco pelo nome fornecido
-            if (user != null && user.senha == password) { // verifica se o usuário existe e se a senha confere
-                _loginSuccess.emit(user) // emite o usuário logado no fluxo de sucesso
-            } else { // caso as credenciais estejam incorretas ou usuário não exista
-                _error.emit("Usuário ou senha inválidos") // emite mensagem de erro no fluxo correspondente
+            if (user == null) { // verifica se o usuário não foi encontrado no banco
+                _error.emit("Nome de usuário não cadastrado") // emite erro informando que o nome não existe
+            } else if (user.senha != password) { // verifica se a senha digitada é diferente da senha do banco
+                _error.emit("Senha incorreta") // emite erro informando que a senha está errada
+            } else { // caso o usuário exista e a senha esteja correta
+                _loginSuccess.emit(user) // emite o objeto usuário no fluxo de sucesso para navegação
             }
         }
     }
