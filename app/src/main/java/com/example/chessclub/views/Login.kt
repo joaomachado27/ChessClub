@@ -46,10 +46,17 @@ fun Login(
 
     var username by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
+    var errorMessage by rememberSaveable { mutableStateOf("") } // cria estado para armazenar a mensagem de erro atual
 
     LaunchedEffect(Unit) {
         viewModel.loginSuccess.collect { user ->
             if (user != null) onEnterClicked(user)
+        }
+    }
+
+    LaunchedEffect(Unit) { // efeito para observar o fluxo de erros da ViewModel
+        viewModel.error.collect { message -> // coleta cada nova mensagem de erro emitida
+            errorMessage = message // atualiza o estado da mensagem de erro na UI
         }
     }
 
@@ -92,15 +99,26 @@ fun Login(
             style = Typography.bodyLarge,
             modifier = Modifier.padding(top = 10.dp, bottom = 10.dp, end = 230.dp)
         )
+
+        if (errorMessage.isNotEmpty()) { // verifica se existe uma mensagem de erro para exibir
+            Text( // exibe o texto de erro na tela
+                text = errorMessage, // define o texto da mensagem
+                color = androidx.compose.ui.graphics.Color.Red, // define a cor vermelha para o erro
+                fontSize = 14.sp, // define o tamanho da fonte do erro
+                modifier = Modifier.padding(bottom = 8.dp) // adiciona espaçamento inferior
+            )
+        }
+
         OutlinedTextField(
             value = username,
             onValueChange = {
                 username = it
+                errorMessage = "" // limpa o erro ao começar a digitar novamente
             },
             label = {
                 Text(
                     "Nome de usuário",
-                    color = Salt,
+                    color = if (errorMessage == "Nome de usuário não cadastrado") androidx.compose.ui.graphics.Color.Red else Salt, // destaca o label em vermelho se for erro de usuário
                     fontFamily = FontFamily.Serif,
                     fontSize = 16.sp
                 )
@@ -108,6 +126,7 @@ fun Login(
             textStyle = TextStyle(Salt, 16.sp),
             maxLines = 1,
             colors = CorTextField,
+            isError = errorMessage == "Nome de usuário não cadastrado", // ativa o estado de erro visual no campo de usuário
             modifier = Modifier
                 .padding(vertical = 5.dp)
                 .fillMaxWidth(0.75f),
@@ -116,14 +135,21 @@ fun Login(
             value = password,
             onValueChange = {
                 password = it
+                errorMessage = "" // limpa o erro ao começar a digitar novamente
             },
             label = {
-                Text("Senha", color = Salt, fontFamily = FontFamily.Serif, fontSize = 16.sp)
+                Text(
+                    "Senha", 
+                    color = if (errorMessage == "Senha incorreta") androidx.compose.ui.graphics.Color.Red else Salt, // destaca o label em vermelho se for erro de senha
+                    fontFamily = FontFamily.Serif, 
+                    fontSize = 16.sp
+                )
             },
             textStyle = TextStyle(Salt, 16.sp),
             visualTransformation = PasswordVisualTransformation(),
             maxLines = 1,
             colors = CorTextField,
+            isError = errorMessage == "Senha incorreta", // ativa o estado de erro visual no campo de senha
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
             modifier = Modifier
                 .padding(vertical = 5.dp)

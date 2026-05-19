@@ -9,7 +9,7 @@ import com.example.chessclub.viewmodel.CadastroViewModel // importa ViewModel de
 import com.example.chessclub.viewmodel.EditarPerfilViewModel // importa ViewModel de edição de perfil
 import com.example.chessclub.viewmodel.LoginViewModel // importa ViewModel de login
 import com.example.chessclub.viewmodel.MenuPrincipalViewModel // importa ViewModel do menu principal
-import org.koin.androidx.viewmodel.dsl.viewModel // importa DSL do Koin para ViewModels
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module // importa DSL do Koin para módulos
 
 val databaseModule = module { // define o módulo de injeção para o banco de dados
@@ -33,9 +33,9 @@ val repositoryModule = module { // define o módulo de injeção para os reposit
 }
 
 val viewModelModule = module { // define o módulo de injeção para as ViewModels
-    viewModel { LoginViewModel(get()) } // provê a LoginViewModel injetando o repositório
-    viewModel { CadastroViewModel(get()) } // provê a CadastroViewModel injetando o repositório
-    viewModel { MenuPrincipalViewModel(get()) } // provê a MenuPrincipalViewModel injetando o repositório
-    viewModel { EditarPerfilViewModel(get()) } // provê a EditarPerfilViewModel injetando o repositório
-    viewModel { AlterarSenhaViewModel(get()) } // provê a AlterarSenhaViewModel injetando o repositório
+    viewModelOf(::LoginViewModel) // provê a LoginViewModel injetando o repositório
+    viewModelOf(::CadastroViewModel) // provê a CadastroViewModel injetando o repositório
+    viewModelOf(::MenuPrincipalViewModel) // provê a MenuPrincipalViewModel injetando o repositório
+    viewModelOf(::EditarPerfilViewModel) // provê a EditarPerfilViewModel injetando o repositório
+    viewModelOf(::AlterarSenhaViewModel) // provê a AlterarSenhaViewModel injetando o repositório
 }

@@ -47,10 +47,17 @@ fun Cadastrar(
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var confirmPassword by rememberSaveable { mutableStateOf("") }
+    var errorMessage by rememberSaveable { mutableStateOf("") } // cria estado para armazenar a mensagem de erro atual
 
     LaunchedEffect(Unit) {
         viewModel.cadastroSuccess.collect { success ->
             if (success) onCadastrarClicked(User(username, password, email))
+        }
+    }
+
+    LaunchedEffect(Unit) { // observa o fluxo de erros da ViewModel de cadastro
+        viewModel.error.collect { message -> // coleta as mensagens de erro emitidas
+            errorMessage = message // atualiza o estado da mensagem de erro na interface
         }
     }
 
@@ -93,15 +100,26 @@ fun Cadastrar(
             style = Typography.bodyLarge,
             modifier = Modifier.padding(top = 0.dp, bottom = 10.dp, end = 200.dp)
         )
+
+        if (errorMessage.isNotEmpty()) { // exibe a mensagem de erro se houver uma ativa
+            Text( // componente de texto para o erro
+                text = errorMessage, // define a mensagem a ser exibida
+                color = androidx.compose.ui.graphics.Color.Red, // define a cor vermelha para alerta de erro
+                fontSize = 14.sp, // define o tamanho da fonte do erro
+                modifier = Modifier.padding(bottom = 8.dp) // adiciona margem inferior
+            )
+        }
+
         OutlinedTextField(
             value = username,
             onValueChange = {
                 username = it
+                errorMessage = "" // limpa o erro ao digitar
             },
             label = {
                 Text(
                     "Nome de usuário",
-                    color = Salt,
+                    color = if (errorMessage == "Nome de usuário já cadastrado") androidx.compose.ui.graphics.Color.Red else Salt, // destaca label em vermelho se erro for duplicidade
                     fontFamily = FontFamily.Serif,
                     fontSize = 16.sp
                 )
@@ -109,6 +127,7 @@ fun Cadastrar(
             textStyle = TextStyle(Salt, 16.sp),
             maxLines = 1,
             colors = CorTextField,
+            isError = errorMessage == "Nome de usuário já cadastrado", // ativa estado visual de erro no campo de usuário
             modifier = Modifier
                 .padding(vertical = 5.dp)
                 .fillMaxWidth(0.75f),
@@ -117,6 +136,7 @@ fun Cadastrar(
             value = email,
             onValueChange = {
                 email = it
+                errorMessage = "" // limpa o erro ao digitar
             },
             label = {
                 Text("Email", color = Salt, fontFamily = FontFamily.Serif, fontSize = 16.sp)
@@ -133,14 +153,21 @@ fun Cadastrar(
             value = password,
             onValueChange = {
                 password = it
+                errorMessage = "" // limpa o erro ao digitar
             },
             label = {
-                Text("Senha", color = Salt, fontFamily = FontFamily.Serif, fontSize = 16.sp)
+                Text(
+                    "Senha", 
+                    color = if (errorMessage == "As senhas não correspondem") androidx.compose.ui.graphics.Color.Red else Salt, // destaca label em vermelho se senhas não baterem
+                    fontFamily = FontFamily.Serif, 
+                    fontSize = 16.sp
+                )
             },
             textStyle = TextStyle(Salt, 16.sp),
             visualTransformation = PasswordVisualTransformation(),
             maxLines = 1,
             colors = CorTextField,
+            isError = errorMessage == "As senhas não correspondem", // ativa estado de erro visual no campo de senha
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
             modifier = Modifier
                 .padding(vertical = 5.dp)
@@ -150,11 +177,12 @@ fun Cadastrar(
             value = confirmPassword,
             onValueChange = {
                 confirmPassword = it
+                errorMessage = "" // limpa o erro ao digitar
             },
             label = {
                 Text(
                     "Confirmar senha",
-                    color = Salt,
+                    color = if (errorMessage == "As senhas não correspondem") androidx.compose.ui.graphics.Color.Red else Salt, // destaca label em vermelho se senhas não baterem
                     fontFamily = FontFamily.Serif,
                     fontSize = 16.sp
                 )
@@ -163,6 +191,7 @@ fun Cadastrar(
             visualTransformation = PasswordVisualTransformation(),
             maxLines = 1,
             colors = CorTextField,
+            isError = errorMessage == "As senhas não correspondem", // ativa estado de erro visual no campo de confirmação
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
             modifier = Modifier
                 .padding(vertical = 5.dp)
@@ -170,12 +199,12 @@ fun Cadastrar(
         )
         Button(
             onClick = {
-                viewModel.cadastrar(User(username, password, email))
+                viewModel.cadastrar(User(username, password, email), confirmPassword) // chama o cadastro passando a confirmação para validar
             },
             enabled = username.isNotEmpty() &&
                       email.isNotEmpty() &&
                       password.isNotEmpty() &&
-                      password == confirmPassword,
+                      confirmPassword.isNotEmpty(),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Swamp
             ),

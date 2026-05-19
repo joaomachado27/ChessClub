@@ -1,5 +1,6 @@
 package com.example.chessclub.views
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -21,11 +22,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.chessclub.R
 import com.example.chessclub.ui.theme.Alligator
 import com.example.chessclub.ui.theme.Cinza
 import com.example.chessclub.ui.theme.Typography
@@ -117,13 +121,20 @@ fun MenuPrincipal(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(24.dp),
-            Arrangement.Center
+            Arrangement.Center,
+            Alignment.CenterVertically
         ) {
             Text(
-                text = "Sobre nós",
+                text = "Sobre nós |",
                 fontSize = 20.sp,
                 style = Typography.bodyLarge,
                 modifier = Modifier.clickable{ onSobreNosClick() }
+            )
+            Image(
+                painter = painterResource(id = R.drawable.logo_uepa_branca_prancheta_1_1024x724),
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.fillMaxWidth(0.5f)
             )
         }
     }
